@@ -19,6 +19,10 @@ class Messages(Enum):
     SERVER_KEY_OUT_OF_RANGE_ERROR = '303 KEY OUT OF RANGE\a\b'
 
 
+# (server_key, client_key)
+KEY_PAIRS = [(23019, 32037), (32037, 29295), (18789, 13603), (16443, 29533), (18189, 21952)]
+
+
 def start_server(server):
     print("[SERVER] Starting server")
 

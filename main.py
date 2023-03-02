@@ -20,7 +20,8 @@ class Messages(Enum):
 
 
 # (server_key, client_key)
-KEY_PAIRS = [(23019, 32037), (32037, 29295), (18789, 13603), (16443, 29533), (18189, 21952)]
+server_keys = [23019, 32037, 18789, 16443, 18189]
+client_keys = [32037, 29295, 13603, 29533, 21952]
 
 
 def start_server(server):

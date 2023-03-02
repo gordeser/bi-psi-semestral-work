@@ -24,13 +24,20 @@ server_keys = [23019, 32037, 18789, 16443, 18189]
 client_keys = [32037, 29295, 13603, 29533, 21952]
 
 
+def count_hash(username):
+    username_decimal = [ord(i) for i in list(username)]
+    _hash = (sum(username_decimal) * 1000) % 65536
+    return _hash
+
+
+
 def start_server(server):
     print("[SERVER] Starting server")
 
     # Checking whether port is free
     try:
         server.bind((SERVER, PORT))
-    except ConnectionError as e:
+    except OSError as e:
         print(e)
 
     server.listen()

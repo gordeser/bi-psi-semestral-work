@@ -24,6 +24,12 @@ server_keys = [23019, 32037, 18789, 16443, 18189]
 client_keys = [32037, 29295, 13603, 29533, 21952]
 
 
+def check_username(username):
+    if len(username) <= 18:
+        return True
+    return False
+
+
 def count_hash(username):
     username_decimal = [ord(i) for i in list(username)]
     _hash = (sum(username_decimal) * 1000) % 65536
@@ -36,6 +42,7 @@ def count_server_confirmation(_hash, key_id):
 
 def count_client_confirmation(_hash, key_id):
     return (_hash + client_keys[key_id]) % 65536
+
 
 def start_server(server):
     print("[SERVER] Starting server")

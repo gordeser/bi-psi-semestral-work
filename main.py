@@ -2,7 +2,7 @@ from enum import Enum
 import socket
 
 SERVER = '192.168.56.1'
-PORT = 12345
+PORT = 12346
 
 
 class Messages(Enum):
@@ -50,6 +50,20 @@ def count_client_confirmation(_hash, key_id):
     return (_hash + client_keys[key_id]) % 65536
 
 
+data = ''
+
+
+def get_data(connection: socket.socket):
+    global data
+    while data.find('\a\b') == -1:
+        buf = connection.recv(1024)
+        data += buf.decode('ascii')
+    pos = data.find('\a\b')
+    message = data[0:data.find('\a\b')]
+    data = data[pos+2:]
+    return message
+
+
 def start_server(server):
     print("[SERVER] Starting server")
 
@@ -64,7 +78,9 @@ def start_server(server):
 
     while True:
         connection, address = server.accept()
+        print(type(connection))
         print(f"[SERVER] New active connection {connection} {address}")
+        print(get_data(connection))
 
 
 def stop_server(server):

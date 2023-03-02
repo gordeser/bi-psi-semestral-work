@@ -23,6 +23,8 @@ class Messages(Enum):
 server_keys = [23019, 32037, 18789, 16443, 18189]
 client_keys = [32037, 29295, 13603, 29533, 21952]
 
+data = ''
+
 
 def check_username(username):
     if len(username) <= 18:
@@ -50,9 +52,6 @@ def count_client_confirmation(_hash, key_id):
     return (_hash + client_keys[key_id]) % 65536
 
 
-data = ''
-
-
 def get_data(connection: socket.socket):
     global data
     while data.find('\a\b') == -1:
@@ -60,8 +59,12 @@ def get_data(connection: socket.socket):
         data += buf.decode('ascii')
     pos = data.find('\a\b')
     message = data[0:data.find('\a\b')]
-    data = data[pos+2:]
+    data = data[pos + 2:]
     return message
+
+
+def send_data(connection: socket.socket, message):
+    connection.send(bytes(message, 'ascii'))
 
 
 def start_server(server):
@@ -80,7 +83,6 @@ def start_server(server):
         connection, address = server.accept()
         print(type(connection))
         print(f"[SERVER] New active connection {connection} {address}")
-        print(get_data(connection))
 
 
 def stop_server(server):

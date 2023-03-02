@@ -30,6 +30,9 @@ def count_hash(username):
     return _hash
 
 
+def count_server_confirmation(_hash, key_id):
+    return (_hash + server_keys[key_id]) % 65536
+
 
 def start_server(server):
     print("[SERVER] Starting server")

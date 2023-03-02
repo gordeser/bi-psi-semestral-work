@@ -30,6 +30,12 @@ def check_username(username):
     return False
 
 
+def check_key_id(key_id):
+    if 0 <= key_id <= 4:
+        return True
+    return False
+
+
 def count_hash(username):
     username_decimal = [ord(i) for i in list(username)]
     _hash = (sum(username_decimal) * 1000) % 65536

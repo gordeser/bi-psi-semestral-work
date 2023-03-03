@@ -70,8 +70,12 @@ def send_data(connection: socket.socket, message: str):
 def auth(connection: socket.socket):
     username = get_data(connection)  # CLIENT_USERNAME
     send_data(connection, Messages.SERVER_KEY_REQUEST.value)  # SERVER_KEY_REQUEST
-    _hash = count_hash(username)
     key_id = int(get_data(connection))  # CLIENT_KEY_ID
+    if not check_key_id(key_id):
+        send_data(connection, Messages.SERVER_KEY_OUT_OF_RANGE_ERROR.value)
+        connection.close()
+        return
+    _hash = count_hash(username)
     server_confirmation = count_server_confirmation(_hash, key_id)
     send_data(connection, str(server_confirmation)+'\a\b')  # SERVER_CONFIRMATION
     check_client_confirmation = int(get_data(connection))  # CLIENT_CONFIRMATION

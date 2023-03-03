@@ -77,7 +77,7 @@ def auth(connection: socket.socket):
         return
     _hash = count_hash(username)
     server_confirmation = count_server_confirmation(_hash, key_id)
-    send_data(connection, str(server_confirmation)+'\a\b')  # SERVER_CONFIRMATION
+    send_data(connection, str(server_confirmation) + '\a\b')  # SERVER_CONFIRMATION
     check_client_confirmation = int(get_data(connection))  # CLIENT_CONFIRMATION
     client_confirmation = count_client_confirmation(_hash, key_id)
     if check_client_confirmation == client_confirmation:
@@ -85,6 +85,35 @@ def auth(connection: socket.socket):
     else:
         send_data(connection, Messages.SERVER_LOGIN_FAILED.value)  # SERVER_LOGIN_FAILED
         connection.close()
+
+
+def get_coords(connection: socket.socket) -> list:
+    buf = get_data(connection)
+    coords = []
+    for coord in buf.split():
+        try:
+            coords.append(int(coord))
+        except ValueError:
+            pass
+    return coords
+
+
+def move(connection: socket.socket) -> list:
+    send_data(connection, Messages.SERVER_MOVE.value)
+    coords = get_coords(connection)
+    return coords
+
+
+def turn_left(connection: socket.socket) -> list:
+    send_data(connection, Messages.SERVER_TURN_LEFT.value)
+    coords = get_coords(connection)
+    return coords
+
+
+def turn_right(connection: socket.socket) -> list:
+    send_data(connection, Messages.SERVER_TURN_RIGHT.value)
+    coords = get_coords(connection)
+    return coords
 
 
 def start_server(server: socket.socket):
@@ -103,7 +132,11 @@ def start_server(server: socket.socket):
         connection, address = server.accept()
         print(type(connection))
         print(f"[SERVER] New active connection {connection} {address}")
-        auth(connection)
+        try:
+            auth(connection)
+        except:
+            send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+            connection.close()
 
 
 def stop_server(server: socket.socket):

@@ -67,6 +67,22 @@ def send_data(connection: socket.socket, message):
     connection.send(bytes(message, 'ascii'))
 
 
+def auth(connection: socket.socket):
+    username = get_data(connection)  # CLIENT_USERNAME
+    send_data(connection, Messages.SERVER_KEY_REQUEST.value)  # SERVER_KEY_REQUEST
+    _hash = count_hash(username)
+    key_id = int(get_data(connection))  # CLIENT_KEY_ID
+    server_confirmation = count_server_confirmation(_hash, key_id)
+    send_data(connection, str(server_confirmation)+'\a\b')  # SERVER_CONFIRMATION
+    check_client_confirmation = int(get_data(connection))  # CLIENT_CONFIRMATION
+    client_confirmation = count_client_confirmation(_hash, key_id)
+    if check_client_confirmation == client_confirmation:
+        send_data(connection, Messages.SERVER_OK.value)  # SERVER_OK
+    else:
+        send_data(connection, Messages.SERVER_LOGIN_FAILED.value)  # SERVER_LOGIN_FAILED
+        connection.close()
+
+
 def start_server(server):
     print("[SERVER] Starting server")
 
@@ -83,6 +99,7 @@ def start_server(server):
         connection, address = server.accept()
         print(type(connection))
         print(f"[SERVER] New active connection {connection} {address}")
+        auth(connection)
 
 
 def stop_server(server):

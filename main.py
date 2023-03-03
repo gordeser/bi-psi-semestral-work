@@ -26,33 +26,33 @@ client_keys = [32037, 29295, 13603, 29533, 21952]
 data = ''
 
 
-def check_username(username):
+def check_username(username: str) -> bool:
     if len(username) <= 18:
         return True
     return False
 
 
-def check_key_id(key_id):
+def check_key_id(key_id: int) -> bool:
     if 0 <= key_id <= 4:
         return True
     return False
 
 
-def count_hash(username):
+def count_hash(username: str) -> int:
     username_decimal = [ord(i) for i in list(username)]
     _hash = (sum(username_decimal) * 1000) % 65536
     return _hash
 
 
-def count_server_confirmation(_hash, key_id):
+def count_server_confirmation(_hash: int, key_id: int) -> int:
     return (_hash + server_keys[key_id]) % 65536
 
 
-def count_client_confirmation(_hash, key_id):
+def count_client_confirmation(_hash: int, key_id: int) -> int:
     return (_hash + client_keys[key_id]) % 65536
 
 
-def get_data(connection: socket.socket):
+def get_data(connection: socket.socket) -> str:
     global data
     while data.find('\a\b') == -1:
         buf = connection.recv(1024)
@@ -63,7 +63,7 @@ def get_data(connection: socket.socket):
     return message
 
 
-def send_data(connection: socket.socket, message):
+def send_data(connection: socket.socket, message: str):
     connection.send(bytes(message, 'ascii'))
 
 
@@ -83,7 +83,7 @@ def auth(connection: socket.socket):
         connection.close()
 
 
-def start_server(server):
+def start_server(server: socket.socket):
     print("[SERVER] Starting server")
 
     # Checking whether port is free
@@ -102,7 +102,7 @@ def start_server(server):
         auth(connection)
 
 
-def stop_server(server):
+def stop_server(server: socket.socket):
     print("[SERVER] Stopping server")
     server.close()
 

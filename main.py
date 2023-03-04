@@ -118,22 +118,19 @@ def get_coords(connection: socket.socket):
     return coords
 
 
-def move(connection: socket.socket) -> list:
+def make_move(connection: socket.socket) -> list:
     send_data(connection, Messages.SERVER_MOVE.value)
-    coords = get_coords(connection)
-    return coords
+    return get_coords(connection)
 
 
 def turn_left(connection: socket.socket) -> list:
     send_data(connection, Messages.SERVER_TURN_LEFT.value)
-    coords = get_coords(connection)
-    return coords
+    return get_coords(connection)
 
 
 def turn_right(connection: socket.socket) -> list:
     send_data(connection, Messages.SERVER_TURN_RIGHT.value)
-    coords = get_coords(connection)
-    return coords
+    return get_coords(connection)
 
 
 def target(connection: socket.socket) -> None:

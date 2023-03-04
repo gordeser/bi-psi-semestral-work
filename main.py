@@ -153,6 +153,11 @@ def get_direction_and_coords(connection: socket.socket) -> list:
     return [second_coords, direction]
 
 
+def turn_around(connection: socket.socket) -> None:
+    turn_left(connection)
+    turn_left(connection)
+
+
 def target(connection: socket.socket) -> None:
     try:
         if not auth(connection):

@@ -198,6 +198,12 @@ def make_down(connection: socket.socket, direction: str) -> str:
     return "DOWN"
 
 
+def get_the_fuck_out_of_obstacle(connection: socket.socket):
+    turn_right(connection)
+    make_move(connection)
+    return turn_left(connection)
+
+
 def make_zero_x(connection: socket.socket, current_position: list, direction: str) -> list:
     cur_pos = current_position
     if cur_pos[0] > 0:
@@ -208,8 +214,7 @@ def make_zero_x(connection: socket.socket, current_position: list, direction: st
         last_pos = cur_pos
         cur_pos = make_move(connection)
         if last_pos == cur_pos:
-            print("[X] THERE IS SOMETHING IN FRONT OF ME", direction)
-            break
+            cur_pos = get_the_fuck_out_of_obstacle(connection)
     return [cur_pos, direction]
 
 
@@ -224,8 +229,7 @@ def make_zero_y(connection: socket.socket, current_position: list, direction: st
         last_pos = cur_pos
         cur_pos = make_move(connection)
         if last_pos == cur_pos:
-            print("[X] THERE IS SOMETHING IN FRONT OF ME", direction)
-            break
+            cur_pos = get_the_fuck_out_of_obstacle(connection)
     return [cur_pos, direction]
 
 
@@ -242,6 +246,8 @@ def handle_robot(connection: socket.socket):
 
 
 def target(connection: socket.socket) -> None:
+    global data
+    data = ""
     try:
         if not auth(connection):
             connection.close()

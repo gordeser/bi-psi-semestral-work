@@ -168,6 +168,17 @@ def make_left(connection: socket.socket, direction: str) -> str:
     return "LEFT"
 
 
+def make_right(connection: socket.socket, direction: str) -> str:
+    if direction == "UP":
+        turn_right(connection)
+    elif direction == "LEFT":
+        turn_around(connection)
+    elif direction == "DOWN":
+        turn_left(connection)
+    return "RIGHT"
+
+
+
 def target(connection: socket.socket) -> None:
     try:
         if not auth(connection):

@@ -71,6 +71,9 @@ def send_data(connection: socket.socket, message: str):
 
 def auth(connection: socket.socket) -> bool:
     username = get_data(connection)  # CLIENT_USERNAME
+    if not check_username(username):
+        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+        return False
     send_data(connection, Messages.SERVER_KEY_REQUEST.value)  # SERVER_KEY_REQUEST
     key_id = int(get_data(connection))  # CLIENT_KEY_ID
     if not check_key_id(key_id):

@@ -1,8 +1,10 @@
+import threading
 from enum import Enum
 import socket
+import sys
 
-SERVER = '192.168.56.1'
-PORT = 12346
+SERVER = '127.0.0.1'
+PORT = int(sys.argv[1])
 
 
 class Messages(Enum):
@@ -116,38 +118,27 @@ def turn_right(connection: socket.socket) -> list:
     return coords
 
 
-def start_server(server: socket.socket):
-    print("[SERVER] Starting server")
-
-    # Checking whether port is free
+def target(connection: socket.socket):
     try:
-        server.bind((SERVER, PORT))
-    except OSError as e:
-        print(e)
-
-    server.listen()
-    print(f"[SERVER] Listening on {SERVER}:{PORT}")
-
-    while True:
-        connection, address = server.accept()
-        print(type(connection))
-        print(f"[SERVER] New active connection {connection} {address}")
-        try:
-            auth(connection)
-        except:
-            send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
-            connection.close()
-
-
-def stop_server(server: socket.socket):
-    print("[SERVER] Stopping server")
-    server.close()
+        auth(connection)
+    except:
+        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+        connection.close()
 
 
 def main():
     server = socket.socket()
-    start_server(server)
-    stop_server(server)
+    try:
+        server.bind((SERVER, PORT))
+    except OSError as e:
+        print(e)
+        exit()
+    server.listen()
+    print(f"Start listening on {SERVER}:{PORT}")
+    while True:
+        connection, address = server.accept()
+        thread = threading.Thread(target=target, args=[connection])
+        thread.start()
 
 
 if __name__ == '__main__':

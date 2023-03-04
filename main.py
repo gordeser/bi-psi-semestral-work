@@ -98,10 +98,19 @@ def auth(connection: socket.socket) -> bool:
     return True
 
 
-def get_coords(connection: socket.socket) -> list:
-    buf = get_data(connection)
+def get_coords(connection: socket.socket):
+    buffer = get_data(connection)
+    if '.' in buffer:
+        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+        connection.close()
+        return False
+    if buffer.count(' ') > 2:
+        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+        connection.close()
+        return False
+
     coords = []
-    for coord in buf.split():
+    for coord in buffer.split():
         try:
             coords.append(int(coord))
         except ValueError:

@@ -82,7 +82,14 @@ def auth(connection: socket.socket) -> bool:
     _hash = count_hash(username)
     server_confirmation = count_server_confirmation(_hash, key_id)
     send_data(connection, str(server_confirmation) + '\a\b')  # SERVER_CONFIRMATION
-    check_client_confirmation = int(get_data(connection))  # CLIENT_CONFIRMATION
+    check_client_confirmation = get_data(connection)  # CLIENT_CONFIRMATION
+    if len(check_client_confirmation) != len(str(int(check_client_confirmation))):
+        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+        return False
+    if len(str(check_client_confirmation)) > 5:
+        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+        return False
+    check_client_confirmation = int(check_client_confirmation)
     client_confirmation = count_client_confirmation(_hash, key_id)
     if check_client_confirmation != client_confirmation:
         send_data(connection, Messages.SERVER_LOGIN_FAILED.value)  # SERVER_LOGIN_FAILED

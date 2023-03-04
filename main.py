@@ -61,7 +61,7 @@ def get_data(connection: socket.socket) -> str:
         data += connection.recv(1024).decode('ascii')
     pos = data.find(ENDING)
     message = data[0:pos]
-    data = data[pos+2:]
+    data = data[pos + 2:]
     return message
 
 
@@ -131,6 +131,26 @@ def turn_left(connection: socket.socket) -> list:
 def turn_right(connection: socket.socket) -> list:
     send_data(connection, Messages.SERVER_TURN_RIGHT.value)
     return get_coords(connection)
+
+
+def get_direction_and_coords(connection: socket.socket) -> list:
+    first_coords = make_move(connection)
+    second_coords = make_move(connection)
+    x = first_coords[0] - second_coords[0]
+    y = first_coords[1] - second_coords[1]
+    direction = ""
+    if x == 0 and y == -1:
+        direction = "UP"
+    if x == 0 and y == 1:
+        direction = "DOWN"
+    if x == -1 and y == 0:
+        direction = "RIGHT"
+    if x == 1 and y == 0:
+        direction = "LEFT"
+    if x == 0 and y == 0:
+        # todo: handle obstacle
+        pass
+    return [second_coords, direction]
 
 
 def target(connection: socket.socket) -> None:

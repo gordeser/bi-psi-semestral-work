@@ -209,6 +209,23 @@ def make_zero_x(connection: socket.socket, current_position: list, direction: st
         cur_pos = make_move(connection)
         if last_pos == cur_pos:
             print("[X] THERE IS SOMETHING IN FRONT OF ME", direction)
+            break
+    return [cur_pos, direction]
+
+
+def make_zero_y(connection: socket.socket, current_position: list, direction: str) -> list:
+    cur_pos = current_position
+    if cur_pos[1] > 0:
+        direction = make_down(connection, direction)
+    elif cur_pos[1] < 0:
+        direction = make_up(connection, direction)
+
+    while cur_pos[1] != 0:
+        last_pos = cur_pos
+        cur_pos = make_move(connection)
+        if last_pos == cur_pos:
+            print("[X] THERE IS SOMETHING IN FRONT OF ME", direction)
+            break
     return [cur_pos, direction]
 
 

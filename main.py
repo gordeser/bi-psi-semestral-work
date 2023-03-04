@@ -5,6 +5,7 @@ import sys
 
 SERVER = '127.0.0.1'
 PORT = int(sys.argv[1])
+ENDING = '\a\b'
 
 
 class Messages(Enum):
@@ -56,12 +57,11 @@ def count_client_confirmation(_hash: int, key_id: int) -> int:
 
 def get_data(connection: socket.socket) -> str:
     global data
-    while data.find('\a\b') == -1:
-        buf = connection.recv(1024)
-        data += buf.decode('ascii')
-    pos = data.find('\a\b')
-    message = data[0:data.find('\a\b')]
-    data = data[pos + 2:]
+    while data.find(ENDING) == -1:
+        data += connection.recv(1024).decode('ascii')
+    pos = data.find(ENDING)
+    message = data[0:pos]
+    data = data[pos+2:]
     return message
 
 

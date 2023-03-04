@@ -69,24 +69,23 @@ def send_data(connection: socket.socket, message: str):
     connection.send(bytes(message, 'ascii'))
 
 
-def auth(connection: socket.socket):
+def auth(connection: socket.socket) -> bool:
     username = get_data(connection)  # CLIENT_USERNAME
     send_data(connection, Messages.SERVER_KEY_REQUEST.value)  # SERVER_KEY_REQUEST
     key_id = int(get_data(connection))  # CLIENT_KEY_ID
     if not check_key_id(key_id):
         send_data(connection, Messages.SERVER_KEY_OUT_OF_RANGE_ERROR.value)
-        connection.close()
-        return
+        return False
     _hash = count_hash(username)
     server_confirmation = count_server_confirmation(_hash, key_id)
     send_data(connection, str(server_confirmation) + '\a\b')  # SERVER_CONFIRMATION
     check_client_confirmation = int(get_data(connection))  # CLIENT_CONFIRMATION
     client_confirmation = count_client_confirmation(_hash, key_id)
-    if check_client_confirmation == client_confirmation:
-        send_data(connection, Messages.SERVER_OK.value)  # SERVER_OK
-    else:
+    if check_client_confirmation != client_confirmation:
         send_data(connection, Messages.SERVER_LOGIN_FAILED.value)  # SERVER_LOGIN_FAILED
-        connection.close()
+        return False
+    send_data(connection, Messages.SERVER_OK.value)  # SERVER_OK
+    return True
 
 
 def get_coords(connection: socket.socket) -> list:
@@ -118,9 +117,11 @@ def turn_right(connection: socket.socket) -> list:
     return coords
 
 
-def target(connection: socket.socket):
+def target(connection: socket.socket) -> None:
     try:
-        auth(connection)
+        if not auth(connection):
+            connection.close()
+            return
     except:
         send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
         connection.close()

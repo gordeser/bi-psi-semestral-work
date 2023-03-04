@@ -55,13 +55,19 @@ def count_client_confirmation(_hash: int, key_id: int) -> int:
     return (_hash + client_keys[key_id]) % 65536
 
 
-def get_data(connection: socket.socket) -> str:
+def get_data(connection: socket.socket):
     global data
-    while data.find(ENDING) == -1:
-        data += connection.recv(1024).decode('ascii')
-    pos = data.find(ENDING)
-    message = data[0:pos]
-    data = data[pos + 2:]
+    connection.settimeout(1)
+    try:
+        while data.find(ENDING) == -1:
+            data += connection.recv(1024).decode('ascii')
+        pos = data.find(ENDING)
+        message = data[0:pos]
+        data = data[pos + 2:]
+    except socket.timeout as e:
+        print(e)
+        connection.close()
+        return False
     return message
 
 

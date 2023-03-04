@@ -178,6 +178,15 @@ def make_right(connection: socket.socket, direction: str) -> str:
     return "RIGHT"
 
 
+def make_up(connection: socket.socket, direction: str) -> str:
+    if direction == "LEFT":
+        turn_right(connection)
+    elif direction == "RIGHT":
+        turn_left(connection)
+    elif direction == "DOWN":
+        turn_around(connection)
+    return "UP"
+
 
 def target(connection: socket.socket) -> None:
     try:

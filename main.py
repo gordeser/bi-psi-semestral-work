@@ -198,6 +198,20 @@ def make_down(connection: socket.socket, direction: str) -> str:
     return "DOWN"
 
 
+def make_zero_x(connection: socket.socket, current_position: list, direction: str) -> list:
+    cur_pos = current_position
+    if cur_pos[0] > 0:
+        direction = make_left(connection, direction)
+    elif cur_pos[0] < 0:
+        direction = make_right(connection, direction)
+    while cur_pos[0] != 0:
+        last_pos = cur_pos
+        cur_pos = make_move(connection)
+        if last_pos == cur_pos:
+            print("[X] THERE IS SOMETHING IN FRONT OF ME", direction)
+    return [cur_pos, direction]
+
+
 def target(connection: socket.socket) -> None:
     try:
         if not auth(connection):

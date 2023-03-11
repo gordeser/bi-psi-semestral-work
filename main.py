@@ -241,9 +241,10 @@ def make_zero_y(connection: socket.socket, current_position: list, direction: st
 
 def handle_robot(connection: socket.socket):
     current_position, direction = get_direction_and_coords(connection)
-    current_position, direction = make_zero_x(connection, current_position, direction)
-    current_position, direction = make_zero_y(connection, current_position, direction)
-    print(current_position, direction)
+    print('[GOT DIRECTION]', current_position)
+    while current_position != [0, 0]:
+        current_position, direction = make_zero_x(connection, current_position, direction)
+        current_position, direction = make_zero_y(connection, current_position, direction)
 
     send_data(connection, Messages.SERVER_PICK_UP.value)
     get_data(connection)

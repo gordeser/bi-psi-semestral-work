@@ -124,7 +124,7 @@ def get_coords(connection: socket.socket):
     return coords
 
 
-def make_move(connection: socket.socket) -> list:
+def move_forward(connection: socket.socket) -> list:
     send_data(connection, Messages.SERVER_MOVE.value)
     return get_coords(connection)
 
@@ -140,8 +140,8 @@ def turn_right(connection: socket.socket) -> list:
 
 
 def get_direction_and_coords(connection: socket.socket) -> list:
-    first_coords = make_move(connection)
-    second_coords = make_move(connection)
+    first_coords = move_forward(connection)
+    second_coords = move_forward(connection)
     x = first_coords[0] - second_coords[0]
     y = first_coords[1] - second_coords[1]
     direction = ""
@@ -206,7 +206,7 @@ def make_down(connection: socket.socket, direction: str) -> str:
 
 def get_the_fuck_out_of_obstacle(connection: socket.socket):
     turn_right(connection)
-    make_move(connection)
+    move_forward(connection)
     return turn_left(connection)
 
 
@@ -218,7 +218,7 @@ def make_zero_x(connection: socket.socket, current_position: list, direction: st
         direction = make_right(connection, direction)
     while cur_pos[0] != 0:
         last_pos = cur_pos
-        cur_pos = make_move(connection)
+        cur_pos = move_forward(connection)
         if last_pos == cur_pos:
             cur_pos = get_the_fuck_out_of_obstacle(connection)
     return [cur_pos, direction]
@@ -233,7 +233,7 @@ def make_zero_y(connection: socket.socket, current_position: list, direction: st
 
     while cur_pos[1] != 0:
         last_pos = cur_pos
-        cur_pos = make_move(connection)
+        cur_pos = move_forward(connection)
         if last_pos == cur_pos:
             cur_pos = get_the_fuck_out_of_obstacle(connection)
     return [cur_pos, direction]

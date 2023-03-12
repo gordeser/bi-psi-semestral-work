@@ -102,11 +102,10 @@ def get_coords(connection: socket.socket):
     if '.' in buffer:
         send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
         connection.close()
-        return False
+
     if buffer.count(' ') > 2:
         send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
         connection.close()
-        return False
 
     coords = []
     for coord in buffer.split():
@@ -117,42 +116,22 @@ def get_coords(connection: socket.socket):
     return coords
 
 
-def move_forward(connection: socket.socket) -> list:
+def move_forward(connection: socket.socket):
     send_data(connection, Messages.SERVER_MOVE.value)
     return get_coords(connection)
 
 
-def turn_left(connection: socket.socket) -> list:
+def turn_left(connection: socket.socket):
     send_data(connection, Messages.SERVER_TURN_LEFT.value)
     return get_coords(connection)
 
 
-def turn_right(connection: socket.socket) -> list:
+def turn_right(connection: socket.socket):
     send_data(connection, Messages.SERVER_TURN_RIGHT.value)
     return get_coords(connection)
 
 
-def get_direction_and_coords(connection: socket.socket) -> list:
-    first_coords = move_forward(connection)
-    second_coords = move_forward(connection)
-    x = first_coords[0] - second_coords[0]
-    y = first_coords[1] - second_coords[1]
-    direction = ""
-    if x == 0 and y == -1:
-        direction = "UP"
-    if x == 0 and y == 1:
-        direction = "DOWN"
-    if x == -1 and y == 0:
-        direction = "RIGHT"
-    if x == 1 and y == 0:
-        direction = "LEFT"
-    if x == 0 and y == 0:
-        # todo: handle obstacle
-        pass
-    return [second_coords, direction]
-
-
-def turn_around(connection: socket.socket) -> None:
+def turn_around(connection: socket.socket):
     turn_left(connection)
     turn_left(connection)
 
@@ -238,8 +217,10 @@ def make_zero_y(connection: socket.socket, current_position: list, direction: st
 
 
 def handle_robot(connection: socket.socket):
-    current_position, direction = get_direction_and_coords(connection)
+    previous_position = get_coords(connection)
+    current_position = get_coords(connection)
     while current_position != [0, 0]:
+
         current_position, direction = make_zero_x(connection, current_position, direction)
         current_position, direction = make_zero_y(connection, current_position, direction)
 

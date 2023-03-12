@@ -216,14 +216,21 @@ def make_zero_y(connection: socket.socket, current_position: list, direction: st
     return [cur_pos, direction]
 
 
+def find_side(connection: socket.socket, previous_position, current_position):
+    # todo: implementation
+    pass
+
+
 def handle_robot(connection: socket.socket):
-    previous_position = get_coords(connection)
+    previous_position: str
     current_position = get_coords(connection)
     while current_position != [0, 0]:
-
-        current_position, direction = make_zero_x(connection, current_position, direction)
-        current_position, direction = make_zero_y(connection, current_position, direction)
-
+        previous_position, current_position = current_position, move_forward(connection)
+        if previous_position == current_position:
+            # todo: get the fuck out of obstacle
+            pass
+        else:
+            find_side(connection, previous_position, current_position)
     send_data(connection, Messages.SERVER_PICK_UP.value)
     get_data(connection)
     send_data(connection, Messages.SERVER_LOGOUT.value)

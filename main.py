@@ -255,15 +255,13 @@ def handle_robot(connection: socket.socket):
     connection.close()
 
 
-def target(connection: socket.socket) -> None:
+def target(connection: socket.socket):
     try:
-        if not auth(connection):
-            connection.close()
-            return
+        auth(connection)
         handle_robot(connection)
     except:
         send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
-        connection.close()
+    connection.close()
 
 
 def main():

@@ -33,9 +33,9 @@ def check_username(connection: socket.socket, username):
         connection.close()
 
 
-def check_key_id(connection:socket.socket, key_id):
-    if 0 <= key_id <= 4:
-        send_data(connection, Messages.SERVER_KEY_OUT_OF_RANGE_ERROR)
+def check_key_id(connection: socket.socket, key_id):
+    if not (0 <= key_id <= 4):
+        send_data(connection, Messages.SERVER_KEY_OUT_OF_RANGE_ERROR.value)
         connection.close()
 
 
@@ -73,33 +73,28 @@ def send_data(connection: socket.socket, message: str):
     connection.send(bytes(message, 'ascii'))
 
 
-def auth(connection: socket.socket) -> bool:
+def auth(connection: socket.socket):
     username = get_data(connection)  # CLIENT_USERNAME
-    if not check_username(username):
-        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
-        return False
+    check_username(connection, username)
     send_data(connection, Messages.SERVER_KEY_REQUEST.value)  # SERVER_KEY_REQUEST
     key_id = int(get_data(connection))  # CLIENT_KEY_ID
-    if not check_key_id(key_id):
-        send_data(connection, Messages.SERVER_KEY_OUT_OF_RANGE_ERROR.value)
-        return False
+    check_key_id(connection, key_id)
     _hash = count_hash(username)
     server_confirmation = count_server_confirmation(_hash, key_id)
     send_data(connection, str(server_confirmation) + ENDING)  # SERVER_CONFIRMATION
     check_client_confirmation = get_data(connection)  # CLIENT_CONFIRMATION
     if len(check_client_confirmation) != len(str(int(check_client_confirmation))):
         send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
-        return False
+        connection.close()
     if len(str(check_client_confirmation)) > 5:
         send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
-        return False
+        connection.close()
     check_client_confirmation = int(check_client_confirmation)
     client_confirmation = count_client_confirmation(_hash, key_id)
     if check_client_confirmation != client_confirmation:
         send_data(connection, Messages.SERVER_LOGIN_FAILED.value)  # SERVER_LOGIN_FAILED
-        return False
+        connection.close()
     send_data(connection, Messages.SERVER_OK.value)  # SERVER_OK
-    return True
 
 
 def get_coords(connection: socket.socket):
@@ -255,11 +250,12 @@ def handle_robot(connection: socket.socket):
 
 
 def target(connection: socket.socket):
-    try:
-        auth(connection)
-        handle_robot(connection)
-    except:
-        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+    # try:
+    auth(connection)
+    handle_robot(connection)
+    # except Exception as e:
+    #     print(e)
+    #     send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
     connection.close()
 
 

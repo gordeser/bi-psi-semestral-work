@@ -143,7 +143,6 @@ def make_left(connection: socket.socket, direction: str) -> str:
         turn_around(connection)
     elif direction == "DOWN":
         turn_right(connection)
-    return "LEFT"
 
 
 def make_right(connection: socket.socket, direction: str) -> str:
@@ -153,7 +152,6 @@ def make_right(connection: socket.socket, direction: str) -> str:
         turn_around(connection)
     elif direction == "DOWN":
         turn_left(connection)
-    return "RIGHT"
 
 
 def make_up(connection: socket.socket, direction: str) -> str:
@@ -163,7 +161,6 @@ def make_up(connection: socket.socket, direction: str) -> str:
         turn_left(connection)
     elif direction == "DOWN":
         turn_around(connection)
-    return "UP"
 
 
 def make_down(connection: socket.socket, direction: str) -> str:
@@ -173,7 +170,6 @@ def make_down(connection: socket.socket, direction: str) -> str:
         turn_right(connection)
     elif direction == "LEFT":
         turn_left(connection)
-    return "DOWN"
 
 
 def get_the_fuck_out_of_obstacle(connection: socket.socket):
@@ -218,6 +214,17 @@ def set_side(current_position):
     return side
 
 
+def handle_side(connection: socket.socket, direction, side):
+    if side == "LEFT":
+        make_right(connection, direction)
+    elif side == "RIGHT":
+        make_right(connection, direction)
+    elif side == "DOWN":
+        make_down(connection, direction)
+    elif side == "UP":
+        make_up(connection, direction)
+
+
 def handle_robot(connection: socket.socket):
     previous_position: str
     current_position = get_coords(connection)
@@ -226,7 +233,9 @@ def handle_robot(connection: socket.socket):
         if previous_position == current_position:
             get_the_fuck_out_of_obstacle(connection)
         else:
-            set_side(connection, previous_position, current_position)
+            direction = find_direction(previous_position, current_position)
+            side = set_side(current_position)
+            handle_side(connection, direction, side)
     send_data(connection, Messages.SERVER_PICK_UP.value)
     get_data(connection)
     send_data(connection, Messages.SERVER_LOGOUT.value)

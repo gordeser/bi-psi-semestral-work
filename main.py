@@ -203,9 +203,19 @@ def find_direction(previous_position, current_position):
     return direction
 
 
-def find_side(connection: socket.socket, previous_position, current_position):
-    # todo: implementation
-    pass
+def set_side(current_position):
+    x = current_position[0]
+    y = current_position[1]
+    side = ""
+    if x > 0:
+        side = "LEFT"
+    elif x < 0:
+        side = "RIGHT"
+    elif y > 0:
+        side = "DOWN"
+    elif y < 0:
+        side = "UP"
+    return side
 
 
 def handle_robot(connection: socket.socket):
@@ -216,7 +226,7 @@ def handle_robot(connection: socket.socket):
         if previous_position == current_position:
             get_the_fuck_out_of_obstacle(connection)
         else:
-            find_side(connection, previous_position, current_position)
+            set_side(connection, previous_position, current_position)
     send_data(connection, Messages.SERVER_PICK_UP.value)
     get_data(connection)
     send_data(connection, Messages.SERVER_LOGOUT.value)

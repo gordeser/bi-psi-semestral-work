@@ -33,10 +33,10 @@ def check_username(connection: socket.socket, username):
         connection.close()
 
 
-def check_key_id(key_id: int) -> bool:
+def check_key_id(connection:socket.socket, key_id):
     if 0 <= key_id <= 4:
-        return True
-    return False
+        send_data(connection, Messages.SERVER_KEY_OUT_OF_RANGE_ERROR)
+        connection.close()
 
 
 def count_hash(username: str) -> int:

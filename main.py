@@ -27,10 +27,10 @@ server_keys = [23019, 32037, 18789, 16443, 18189]
 client_keys = [32037, 29295, 13603, 29533, 21952]
 
 
-def check_username(username: str) -> bool:
-    if len(username) <= 18:
-        return True
-    return False
+def check_username(connection: socket.socket, username):
+    if len(username) > 18:
+        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+        connection.close()
 
 
 def check_key_id(key_id: int) -> bool:
@@ -244,7 +244,6 @@ def make_zero_y(connection: socket.socket, current_position: list, direction: st
 
 def handle_robot(connection: socket.socket):
     current_position, direction = get_direction_and_coords(connection)
-    print('[GOT DIRECTION]', current_position)
     while current_position != [0, 0]:
         current_position, direction = make_zero_x(connection, current_position, direction)
         current_position, direction = make_zero_y(connection, current_position, direction)

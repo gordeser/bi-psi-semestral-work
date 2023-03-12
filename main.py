@@ -1,11 +1,11 @@
+import os
 import threading
 from enum import Enum
 import socket
 import sys
 
-SERVER = '127.0.0.1'
-PORT = int(sys.argv[1])
 ENDING = '\a\b'
+data = ""
 
 
 class Messages(Enum):
@@ -25,8 +25,6 @@ class Messages(Enum):
 # (server_key, client_key)
 server_keys = [23019, 32037, 18789, 16443, 18189]
 client_keys = [32037, 29295, 13603, 29533, 21952]
-
-data = ''
 
 
 def check_username(username: str) -> bool:
@@ -207,7 +205,12 @@ def make_down(connection: socket.socket, direction: str) -> str:
 def get_the_fuck_out_of_obstacle(connection: socket.socket):
     turn_right(connection)
     move_forward(connection)
-    return turn_left(connection)
+    turn_left(connection)
+    move_forward(connection)
+    move_forward(connection)
+    turn_left(connection)
+    move_forward(connection)
+    return turn_right(connection)
 
 
 def make_zero_x(connection: socket.socket, current_position: list, direction: str) -> list:
@@ -253,8 +256,6 @@ def handle_robot(connection: socket.socket):
 
 
 def target(connection: socket.socket) -> None:
-    global data
-    data = ""
     try:
         if not auth(connection):
             connection.close()
@@ -266,15 +267,15 @@ def target(connection: socket.socket) -> None:
 
 
 def main():
-    server = socket.socket()
-    try:
-        server.bind((SERVER, PORT))
-    except OSError as e:
-        print(e)
-        exit()
-    server.listen()
-    print(f"Start listening on {SERVER}:{PORT}")
+    HOST = '127.0.0.1'
+    PORT = int(sys.argv[1])
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # solve "Address already in use"
+    server.bind((HOST, PORT))
+    server.listen(1)
+    print(f"Start listening on {HOST}:{PORT}")
     while True:
+        print('----------------------------')
         connection, address = server.accept()
         thread = threading.Thread(target=target, args=[connection])
         thread.start()

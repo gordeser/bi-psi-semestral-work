@@ -184,36 +184,23 @@ def get_the_fuck_out_of_obstacle(connection: socket.socket):
     move_forward(connection)
     turn_left(connection)
     move_forward(connection)
-    return turn_right(connection)
+    turn_right(connection)
 
 
-def make_zero_x(connection: socket.socket, current_position: list, direction: str) -> list:
-    cur_pos = current_position
-    if cur_pos[0] > 0:
-        direction = make_left(connection, direction)
-    elif cur_pos[0] < 0:
-        direction = make_right(connection, direction)
-    while cur_pos[0] != 0:
-        last_pos = cur_pos
-        cur_pos = move_forward(connection)
-        if last_pos == cur_pos:
-            cur_pos = get_the_fuck_out_of_obstacle(connection)
-    return [cur_pos, direction]
-
-
-def make_zero_y(connection: socket.socket, current_position: list, direction: str) -> list:
-    cur_pos = current_position
-    if cur_pos[1] > 0:
-        direction = make_down(connection, direction)
-    elif cur_pos[1] < 0:
-        direction = make_up(connection, direction)
-
-    while cur_pos[1] != 0:
-        last_pos = cur_pos
-        cur_pos = move_forward(connection)
-        if last_pos == cur_pos:
-            cur_pos = get_the_fuck_out_of_obstacle(connection)
-    return [cur_pos, direction]
+def find_direction(previous_position, current_position):
+    x = current_position[0] - previous_position[0]
+    y = current_position[1] - current_position[1]
+    direction = ""
+    if (x > 0) and (y == 0):
+        direction = "RIGHT"
+    if (x < 0) and (y == 0):
+        direction = "LEFT"
+    if (x == 0) and (y > 0):
+        direction = "UP"
+    if (x == 0) and (y < 0):
+        direction = "DOWN"
+    # there is no case x == 0 and y == 0 (obstacle)
+    return direction
 
 
 def find_side(connection: socket.socket, previous_position, current_position):
@@ -227,8 +214,7 @@ def handle_robot(connection: socket.socket):
     while current_position != [0, 0]:
         previous_position, current_position = current_position, move_forward(connection)
         if previous_position == current_position:
-            # todo: get the fuck out of obstacle
-            pass
+            get_the_fuck_out_of_obstacle(connection)
         else:
             find_side(connection, previous_position, current_position)
     send_data(connection, Messages.SERVER_PICK_UP.value)

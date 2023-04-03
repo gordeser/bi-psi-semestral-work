@@ -24,11 +24,25 @@ class Messages(Enum):
     SERVER_KEY_OUT_OF_RANGE_ERROR = "303 KEY OUT OF RANGE\a\b"
 
 
+def get_data(connection, data):
+    while data[0].find("\a\b") == -1:
+        data[0] += connection.recv(1024).decode('ascii')
+    pos = data[0].find("\a\b")
+    message = data[0][0:pos]
+    data[0] = data[0][pos + 2:]
+    return message
+
+
+def auth(connection, data):
+    username = get_data(connection, data)
+    print(username)
+
+
 def handle_client(connection: socket.socket):
     connection.settimeout(TIMEOUT)
-    data = ""
+    data = [""]  # make data mutable
 
-    # auth part
+    auth(connection, data)
     # robot part
     return True
 

@@ -6,6 +6,9 @@ from enum import Enum
 HOST = "127.0.0.1"
 PORT = int(sys.argv[1])
 
+TIMEOUT = 1
+TIMEOUT_RECHARGING = 5
+
 
 class Messages(Enum):
     SERVER_MOVE = "102 MOVE\a\b"
@@ -21,8 +24,13 @@ class Messages(Enum):
     SERVER_KEY_OUT_OF_RANGE_ERROR = "303 KEY OUT OF RANGE\a\b"
 
 
-def handle_client(connection):
-    pass
+def handle_client(connection: socket.socket):
+    connection.settimeout(TIMEOUT)
+    data = ""
+
+    # auth part
+    # robot part
+    return True
 
 
 def main():

@@ -70,7 +70,14 @@ def auth(connection, data):
     server_confirmation = count_server_confirmation(_hash, key_id)
     client_confirmation = count_client_confirmation(_hash, key_id)
     print(f"CONFIRMS: SERVER {server_confirmation} and CLIENT {client_confirmation}")
-
+    send_data(connection, server_confirmation)  # <--- SERVER_CONFIRMATION
+    check_client_confirmation = get_data(connection, data)  # CLIENT_CONFIRMATION --->
+    print(f"CONFIRM FROM CLIENT: {check_client_confirmation} and OURS: {client_confirmation}")
+    if client_confirmation != client_confirmation:
+        send_data(connection, Messages.SERVER_LOGIN_FAILED.value)  # <--- # SERVER_LOGIN_FAILED
+        return False
+    send_data(connection, Messages.SERVER_OK.value)  # <--- SERVER_OK
+    return True
 
 
 def handle_client(connection: socket.socket):

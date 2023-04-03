@@ -8,6 +8,13 @@ PORT = int(sys.argv[1])
 
 TIMEOUT = 1
 TIMEOUT_RECHARGING = 5
+ENDING = "\a\b"
+
+MULTIPLY = 1000
+MODULO = 65536
+
+SERVER_KEYS = [23019, 32037, 18789, 16443, 18189]
+CLIENT_KEYS = [32037, 29295, 13603, 29533, 21952]
 
 
 class Messages(Enum):
@@ -25,22 +32,31 @@ class Messages(Enum):
 
 
 def get_data(connection, data):
-    while data[0].find("\a\b") == -1:
+    while data[0].find(ENDING) == -1:
         data[0] += connection.recv(1024).decode('ascii')
-    pos = data[0].find("\a\b")
-    message = data[0][0:pos]
+
+    pos = data[0].find(ENDING)
+    message = data[0][:pos]
     data[0] = data[0][pos + 2:]
     return message
 
 
 def send_data(connection, data):
-    connection.send(bytes(data, 'ascii'))
+    connection.send(bytes(data, 'utf-8'))
+
+
+def count_hash(username):
+    username_decimal = [ord(i) for i in list(username)]
+    _hash = (sum(username_decimal) * MULTIPLY) % MODULO
+    return _hash
 
 
 def auth(connection, data):
     username = get_data(connection, data)  # CLIENT_USERNAME --->
-    print(f"USERNAME IS: {username}")
+    print(f"USERNAME: {username}")
     send_data(connection, Messages.SERVER_KEY_REQUEST.value)  # <--- SERVER_KEY_REQUEST
+    key_id = int(get_data(connection, data))  # CLIENT_KEY_ID --->
+    _hash = count_hash(username)
 
 
 def handle_client(connection: socket.socket):

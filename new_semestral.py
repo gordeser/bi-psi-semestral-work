@@ -33,9 +33,14 @@ def get_data(connection, data):
     return message
 
 
+def send_data(connection, data):
+    connection.send(bytes(data, 'ascii'))
+
+
 def auth(connection, data):
-    username = get_data(connection, data)
-    print(username)
+    username = get_data(connection, data)  # CLIENT_USERNAME --->
+    print(f"USERNAME IS: {username}")
+    send_data(connection, Messages.SERVER_KEY_REQUEST.value)  # <--- SERVER_KEY_REQUEST
 
 
 def handle_client(connection: socket.socket):

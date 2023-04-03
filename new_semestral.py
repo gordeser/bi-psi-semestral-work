@@ -55,13 +55,22 @@ def count_server_confirmation(_hash, key_id):
     return (_hash + SERVER_KEYS[key_id]) % MODULO
 
 
+def count_client_confirmation(_hash, key_id):
+    return (_hash + CLIENT_KEYS[key_id]) % MODULO
+
+
 def auth(connection, data):
     username = get_data(connection, data)  # CLIENT_USERNAME --->
     print(f"USERNAME: {username}")
     send_data(connection, Messages.SERVER_KEY_REQUEST.value)  # <--- SERVER_KEY_REQUEST
     key_id = int(get_data(connection, data))  # CLIENT_KEY_ID --->
+    print(f"KEY_ID: {key_id}")
     _hash = count_hash(username)
+    print(f"COUNTED HASH: {_hash}")
     server_confirmation = count_server_confirmation(_hash, key_id)
+    client_confirmation = count_client_confirmation(_hash, key_id)
+    print(f"CONFIRMS: SERVER {server_confirmation} and CLIENT {client_confirmation}")
+
 
 
 def handle_client(connection: socket.socket):

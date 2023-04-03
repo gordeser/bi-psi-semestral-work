@@ -42,7 +42,7 @@ def get_data(connection, data):
 
 
 def send_data(connection, data):
-    connection.send(bytes(str(data)+ENDING, 'utf-8'))
+    connection.send(bytes(str(data) + ENDING, 'utf-8'))
 
 
 def count_hash(username):
@@ -80,12 +80,31 @@ def auth(connection, data):
     return True
 
 
+# --------------------------------------------------
+
+def get_coords(connection, data):
+    buffer = get_data(connection, data)
+    coords = []
+    for coord in buffer.split():
+        try:
+            coords.append(int(coord))
+        except ValueError:
+            pass
+    return coords
+
+
+def robot_part(connection, data):
+    send_data(connection, Messages.SERVER_MOVE.value)
+    coords = get_coords(connection, data)
+    print(f"POSITION: {coords[0]};{coords[1]}")
+
+
 def handle_client(connection: socket.socket):
     connection.settimeout(TIMEOUT)
     data = [""]  # make data mutable
 
     auth(connection, data)
-    # robot part
+    robot_part(connection, data)
     return True
 
 

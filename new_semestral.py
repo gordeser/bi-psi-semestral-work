@@ -64,6 +64,10 @@ def auth(connection, data):
     print(f"USERNAME: {username}")
     send_data(connection, Messages.SERVER_KEY_REQUEST.value)  # <--- SERVER_KEY_REQUEST
     key_id = int(get_data(connection, data))  # CLIENT_KEY_ID --->
+    if not (0 <= key_id <= 4):
+        send_data(connection, Messages.SERVER_KEY_OUT_OF_RANGE_ERROR.value)
+        connection.close()
+        return False
     print(f"KEY_ID: {key_id}")
     _hash = count_hash(username)
     print(f"COUNTED HASH: {_hash}")
@@ -73,8 +77,9 @@ def auth(connection, data):
     send_data(connection, server_confirmation)  # <--- SERVER_CONFIRMATION
     check_client_confirmation = get_data(connection, data)  # CLIENT_CONFIRMATION --->
     print(f"CONFIRM FROM CLIENT: {check_client_confirmation} and OURS: {client_confirmation}")
-    if client_confirmation != client_confirmation:
+    if int(client_confirmation) != int(check_client_confirmation):
         send_data(connection, Messages.SERVER_LOGIN_FAILED.value)  # <--- # SERVER_LOGIN_FAILED
+        connection.close()
         return False
     send_data(connection, Messages.SERVER_OK.value)  # <--- SERVER_OK
     return True

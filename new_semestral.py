@@ -93,10 +93,20 @@ def get_coords(connection, data):
     return coords
 
 
+def finished(x, y):
+    return x == 0 and y == 0
+
+
 def robot_part(connection, data):
     send_data(connection, Messages.SERVER_MOVE.value)
-    coords = get_coords(connection, data)
-    print(f"POSITION: {coords[0]};{coords[1]}")
+    x, y = get_coords(connection, data)
+    print(f"POSITION: {x};{y}")
+    if finished(x, y):
+        send_data(connection, Messages.SERVER_PICK_UP.value)
+        end_message = get_data(connection, data)
+        print(f"END MESSAGE: {end_message}")
+        send_data(connection, Messages.SERVER_LOGOUT.value)
+        connection.close()
 
 
 def handle_client(connection: socket.socket):

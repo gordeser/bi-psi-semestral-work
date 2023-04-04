@@ -66,6 +66,7 @@ def auth(connection, data):
     key_id = int(get_data(connection, data))  # CLIENT_KEY_ID --->
     if not (0 <= key_id <= 4):
         send_data(connection, Messages.SERVER_KEY_OUT_OF_RANGE_ERROR.value)
+        print("WRONG KEY_ID")
         connection.close()
         return False
     print(f"KEY_ID: {key_id}")
@@ -117,9 +118,13 @@ def robot_part(connection, data):
 def handle_client(connection: socket.socket):
     connection.settimeout(TIMEOUT)
     data = [""]  # make data mutable
-
-    auth(connection, data)
-    robot_part(connection, data)
+    try:
+        auth(connection, data)
+        robot_part(connection, data)
+    except socket.timeout:
+        print("CONNECTION TIMEOUT")
+        connection.close()
+        return False
     return True
 
 

@@ -44,21 +44,28 @@ def get_data(connection, data, maxlen=100):
             connection.close()
             return False
 
-        # if len(data[0]) > maxlen:
-        #     print(f"EXCEEDED MAXLEN: {data[0]}")
-        #     send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
-        #     connection.close()
-
     pos = data[0].find(ENDING)
     message = data[0][:pos]
     data[0] = data[0][pos + 2:]
+    if message == "RECHARGING":
+        print(f"[{data[2]}] RECHARGING...")
 
-    if message == "RECHARGING" or message == "FULL POWER":
-        print(f"[{data[2]}] RECHARGING IS NOT REALEASED")
-        connection.close()
-        return False
+        data[1] = True
+        connection.settimeout(TIMEOUT_RECHARGING)
+        full_power = get_data(connection, data, 12)
+        if full_power != "FULL POWER":
+            send_data(connection, Messages.SERVER_LOGIC_ERROR.value)
+            print(f"[{data[2]}] FAILED RECHARGING")
+            connection.close()
+            return False
+        else:
+            print(f"[{data[2]}] DONE RECHARGING")
+            data[1] = False
+            new_message = get_data(connection, data, maxlen)
+            print(f"[{data[2]}] DATA AFTER RECHARGING: {new_message}")
+            return new_message
 
-    if len(message) > maxlen-2:
+    if len(message) > maxlen - 2:
         print(f"[{data[2]}] EXCEEDED MAXLEN: {data[0]}")
         send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
         connection.close()
@@ -325,7 +332,7 @@ def handle_client(connection: socket.socket, count):
 
 def main():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # # solve "Address already in use"
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # solve "Address already in use"
     try:
         server.bind((HOST, PORT))
     except Exception as e:

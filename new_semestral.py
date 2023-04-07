@@ -144,16 +144,9 @@ def finished(coords):
     return coords[0] == 0 and coords[1] == 0
 
 
-def robot_part(connection, data):
+def move_forward(connection, data):
     send_data(connection, Messages.SERVER_MOVE.value)
-    x, y = get_coords(connection, data)
-    print(f"POSITION: {x};{y}")
-    if finished(x, y):
-        send_data(connection, Messages.SERVER_PICK_UP.value)
-        end_message = get_data(connection, data)
-        print(f"END MESSAGE: {end_message}")
-        send_data(connection, Messages.SERVER_LOGOUT.value)
-        connection.close()
+    return get_coords(connection, data)
 
 
 def handle_client(connection: socket.socket):

@@ -149,6 +149,11 @@ def move_forward(connection, data):
     return get_coords(connection, data)
 
 
+def turn_left(connection, data):
+    send_data(connection, Messages.SERVER_TURN_LEFT.value)
+    return get_coords(connection, data)
+
+
 def handle_client(connection: socket.socket):
     connection.settimeout(TIMEOUT)
     data = [""]  # make data mutable

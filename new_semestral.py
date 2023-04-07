@@ -34,13 +34,29 @@ class Messages(Enum):
     SERVER_KEY_OUT_OF_RANGE_ERROR = "303 KEY OUT OF RANGE"
 
 
-def get_data(connection, data):
+def get_data(connection, data, maxlen=100):
     while data[0].find(ENDING) == -1:
         data[0] += connection.recv(1024).decode('ascii')
+        if len(data[0]) >= maxlen and "\a\b" not in data[0]:
+            print(f"EXCEEDED MAXLEN: {data[0]}")
+            send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+            connection.close()
+        # if len(data[0]) > maxlen:
+        #     print(f"EXCEEDED MAXLEN: {data[0]}")
+        #     send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+        #     connection.close()
 
     pos = data[0].find(ENDING)
     message = data[0][:pos]
     data[0] = data[0][pos + 2:]
+    if message == "RECHARGING" or message == "FULL POWER":
+        print("RECHARGING IS NOT REALEASED")
+        connection.close()
+        return False
+    if len(message) > maxlen-2:
+        print(f"EXCEEDED MAXLEN: {data[0]}")
+        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+        connection.close()
     return message
 
 

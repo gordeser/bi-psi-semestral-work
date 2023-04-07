@@ -164,6 +164,43 @@ def turn_around(connection, data):
     turn_left(connection, data)
 
 
+def rotate(connection, data, direction, need_to):
+    if direction == need_to:
+        return True
+
+    elif direction == "RIGHT":
+        if need_to == "LEFT":
+            turn_around(connection, data)
+        elif need_to == "UP":
+            turn_left(connection, data)
+        elif need_to == "DOWN":
+            turn_right(connection, data)
+
+    elif direction == "LEFT":
+        if need_to == "RIGHT":
+            turn_around(connection, data)
+        elif need_to == "UP":
+            turn_right(connection, data)
+        elif need_to == "DOWN":
+            turn_left(connection, data)
+
+    elif direction == "UP":
+        if need_to == "LEFT":
+            turn_left(connection, data)
+        elif need_to == "RIGHT":
+            turn_right(connection, data)
+        elif need_to == "DOWN":
+            turn_around(connection, data)
+
+    elif direction == "DOWN":
+        if need_to == "LEFT":
+            turn_right(connection, data)
+        elif need_to == "RIGHT":
+            turn_left(connection, data)
+        elif need_to == "UP":
+            turn_around(connection, data)
+
+
 def handle_client(connection: socket.socket):
     connection.settimeout(TIMEOUT)
     data = [""]  # make data mutable

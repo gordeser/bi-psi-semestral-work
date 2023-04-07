@@ -239,6 +239,33 @@ def logout(connection):
     connection.close()
 
 
+def solve_obstacle(connection, data):
+    turn_right(connection, data)
+    coords = move_forward(connection, data)
+    if finished(coords):
+        get_secret(connection, data)
+        logout(connection)
+
+    turn_left(connection, data)
+    coords = move_forward(connection, data)
+    if finished(coords):
+        get_secret(connection, data)
+        logout(connection)
+
+    coords = move_forward(connection, data)
+    if finished(coords):
+        get_secret(connection, data)
+        logout(connection)
+
+    turn_left(connection, data)
+    coords = move_forward(connection, data)
+    if finished(coords):
+        get_secret(connection, data)
+        logout(connection)
+
+    return turn_right(connection, data)
+
+
 def handle_client(connection: socket.socket):
     connection.settimeout(TIMEOUT)
     data = [""]  # make data mutable

@@ -37,10 +37,13 @@ class Messages(Enum):
 def get_data(connection, data, maxlen=100):
     while data[0].find(ENDING) == -1:
         data[0] += connection.recv(1024).decode('ascii')
-        if len(data[0]) >= maxlen and "\a\b" not in data[0]:
+
+        if len(data[0]) >= maxlen and ENDING not in data[0]:
             print(f"EXCEEDED MAXLEN: {data[0]}")
             send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
             connection.close()
+            return False
+
         # if len(data[0]) > maxlen:
         #     print(f"EXCEEDED MAXLEN: {data[0]}")
         #     send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
@@ -49,14 +52,18 @@ def get_data(connection, data, maxlen=100):
     pos = data[0].find(ENDING)
     message = data[0][:pos]
     data[0] = data[0][pos + 2:]
+
     if message == "RECHARGING" or message == "FULL POWER":
         print("RECHARGING IS NOT REALEASED")
         connection.close()
         return False
+
     if len(message) > maxlen-2:
         print(f"EXCEEDED MAXLEN: {data[0]}")
         send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
         connection.close()
+        return False
+
     return message
 
 
@@ -78,8 +85,11 @@ def count_client_confirmation(_hash, key_id):
     return (_hash + CLIENT_KEYS[key_id]) % MODULO
 
 
+def check_key_id(key_id):
+    return 0 <= key_id <= 4
+
+
 def auth(connection, data):
-    # todo: make other functions to get username, key_id, checking confirms
     username = get_data(connection, data, 20)  # CLIENT_USERNAME --->
     print(f"USERNAME: {username}")
     send_data(connection, Messages.SERVER_KEY_REQUEST.value)  # <--- SERVER_KEY_REQUEST
@@ -91,7 +101,7 @@ def auth(connection, data):
         send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
         connection.close()
         return False
-    if not (0 <= key_id <= 4):
+    if not check_key_id(key_id):
         send_data(connection, Messages.SERVER_KEY_OUT_OF_RANGE_ERROR.value)
         print("WRONG KEY_ID")
         connection.close()

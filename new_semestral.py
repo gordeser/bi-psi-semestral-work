@@ -61,6 +61,7 @@ def get_data(connection, data, maxlen=100):
         else:
             print(f"[{data[2]}] DONE RECHARGING")
             data[1] = False
+            connection.settimeout(TIMEOUT)
             new_message = get_data(connection, data, maxlen)
             print(f"[{data[2]}] DATA AFTER RECHARGING: {new_message}")
             return new_message

@@ -39,7 +39,7 @@ def get_data(connection, data, maxlen=100):
         data[0] += connection.recv(1024).decode('ascii')
 
         if len(data[0]) >= maxlen and ENDING not in data[0]:
-            print(f"EXCEEDED MAXLEN: {data[0]}")
+            print(f"[{data[2]}] EXCEEDED MAXLEN: {data[0]}")
             send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
             connection.close()
             return False
@@ -54,12 +54,12 @@ def get_data(connection, data, maxlen=100):
     data[0] = data[0][pos + 2:]
 
     if message == "RECHARGING" or message == "FULL POWER":
-        print("RECHARGING IS NOT REALEASED")
+        print(f"[{data[2]}] RECHARGING IS NOT REALEASED")
         connection.close()
         return False
 
     if len(message) > maxlen-2:
-        print(f"EXCEEDED MAXLEN: {data[0]}")
+        print(f"[{data[2]}] EXCEEDED MAXLEN: {data[0]}")
         send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
         connection.close()
         return False
@@ -91,35 +91,35 @@ def check_key_id(key_id):
 
 def auth(connection, data):
     username = get_data(connection, data, 20)  # CLIENT_USERNAME --->
-    print(f"USERNAME: {username}")
+    print(f"[{data[2]}] USERNAME: {username}")
     send_data(connection, Messages.SERVER_KEY_REQUEST.value)  # <--- SERVER_KEY_REQUEST
     key_id = get_data(connection, data, 5)
     try:
         key_id = int(key_id)  # CLIENT_KEY_ID --->
     except ValueError:
-        print(f"WRONG KEY_ID: {key_id}")
+        print(f"[{data[2]}] WRONG KEY_ID: {key_id}")
         send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
         connection.close()
         return False
     if not check_key_id(key_id):
         send_data(connection, Messages.SERVER_KEY_OUT_OF_RANGE_ERROR.value)
-        print("WRONG KEY_ID")
+        print(f"[{data[2]}] WRONG KEY_ID: {key_id}")
         connection.close()
         return False
-    print(f"KEY_ID: {key_id}")
+    print(f"[{data[2]}] KEY_ID: {key_id}")
     _hash = count_hash(username)
-    print(f"COUNTED HASH: {_hash}")
+    print(f"[{data[2]}] COUNTED HASH: {_hash}")
     server_confirmation = count_server_confirmation(_hash, key_id)
     client_confirmation = count_client_confirmation(_hash, key_id)
-    print(f"CONFIRMS: SERVER {server_confirmation} and CLIENT {client_confirmation}")
+    print(f"[{data[2]}] CONFIRMS: SERVER {server_confirmation} and CLIENT {client_confirmation}")
     send_data(connection, server_confirmation)  # <--- SERVER_CONFIRMATION
     check_client_confirmation = get_data(connection, data, 7)  # CLIENT_CONFIRMATION --->
     if len(check_client_confirmation) != len(str(int(check_client_confirmation))):
-        print(f"SPACE AFTER CONFIRMATION: {check_client_confirmation}")
+        print(f"[{data[2]}] SPACE AFTER CONFIRMATION: {check_client_confirmation}")
         send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
         connection.close()
         return False
-    print(f"CONFIRM FROM CLIENT: {check_client_confirmation} and OURS: {client_confirmation}")
+    print(f"[{data[2]}] CONFIRM FROM CLIENT: {check_client_confirmation} and OURS: {client_confirmation}")
     if int(client_confirmation) != int(check_client_confirmation):
         send_data(connection, Messages.SERVER_LOGIN_FAILED.value)  # <--- # SERVER_LOGIN_FAILED
         connection.close()
@@ -278,18 +278,18 @@ def solve_obstacle(connection, data):
 
 def robot_part(connection, data):
     coords = move_forward(connection, data)
-    print(f"POSITION: {coords}")
+    print(f"[{data[2]}] POSITION: {coords}")
     if finished(coords):
         secret = get_secret(connection, data)
-        print(f"SECRET MESSAGE: {secret}")
+        print(f"[{data[2]}] SECRET MESSAGE: {secret}")
         logout(connection)
 
     prev_pos = coords
     curr_pos = move_forward(connection, data)
-    print(f"POSITION: {curr_pos}")
+    print(f"[{data[2]}] POSITION: {curr_pos}")
     while curr_pos != [0, 0]:
         if prev_pos == curr_pos:
-            print(f"GOT INTO OBSTACLE with {prev_pos} and {curr_pos}")
+            print(f"[{data[2]}] GOT INTO OBSTACLE with {prev_pos} and {curr_pos}")
             tmp = solve_obstacle(connection, data)
             prev_pos = curr_pos
             curr_pos = tmp
@@ -298,25 +298,28 @@ def robot_part(connection, data):
 
             prev_pos = curr_pos
             curr_pos = tmp
-            print(f"POSITION: {curr_pos}")
+            print(f"[{data[2]}] POSITION: {curr_pos}")
 
     secret = get_secret(connection, data)
-    print(f"SECRET MESSAGE: {secret}")
+    print(f"[{data[2]}] SECRET MESSAGE: {secret}")
     logout(connection)
 
 
-def handle_client(connection: socket.socket):
+def handle_client(connection: socket.socket, count):
+    print(f"[{count}] NEW CONNECTION")
     connection.settimeout(TIMEOUT)
-    data = [""]  # make data mutable
+    data = ["", False, count]  # make data mutable, format: [text, is_sleeping, num of thread]
     try:
         auth(connection, data)
         robot_part(connection, data)
     except socket.timeout:
-        print("CONNECTION TIMEOUT")
+        print(f"[{data[2]}] CONNECTION TIMEOUT")
         connection.close()
+        print('-----------------------------------')
         return False
     except:
-        return True
+        pass
+    print('-----------------------------------')
     return True
 
 
@@ -329,11 +332,12 @@ def main():
         print(str(e))
     server.listen()
     print(f"Start listening on {HOST}:{PORT}")
+    count = 0
     while True:
         connection, address = server.accept()
-        thread = threading.Thread(target=handle_client, args=[connection])
+        count += 1
+        thread = threading.Thread(target=handle_client, args=[connection, count])
         thread.start()
-        print('-----------------------------------')
 
 
 if __name__ == '__main__':

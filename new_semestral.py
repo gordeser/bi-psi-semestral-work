@@ -201,6 +201,34 @@ def rotate(connection, data, direction, need_to):
             turn_around(connection, data)
 
 
+def next_move(connection, data, prev_pos, curr_pos):
+    x = curr_pos[0] - prev_pos[0]
+    y = curr_pos[1] - prev_pos[1]
+
+    direction = ""
+    if y == 0 and x > 0:
+        direction = "RIGHT"
+    if y == 0 and x < 0:
+        direction = "LEFT"
+    if x == 0 and y > 0:
+        direction = "UP"
+    if x == 0 and y < 0:
+        direction = "DOWN"
+
+    need_to = ""
+    if curr_pos[0] > 0:
+        need_to = "LEFT"
+    elif curr_pos[0] < 0:
+        need_to = "RIGHT"
+    elif curr_pos[1] > 0:
+        need_to = "DOWN"
+    elif curr_pos[1] < 0:
+        need_to = "UP"
+
+    rotate(connection, data, direction, need_to)
+    return move_forward(connection, data)
+
+
 def handle_client(connection: socket.socket):
     connection.settimeout(TIMEOUT)
     data = [""]  # make data mutable

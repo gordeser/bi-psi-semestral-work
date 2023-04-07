@@ -159,6 +159,11 @@ def turn_right(connection, data):
     return get_coords(connection, data)
 
 
+def turn_around(connection, data):
+    turn_left(connection, data)
+    turn_left(connection, data)
+
+
 def handle_client(connection: socket.socket):
     connection.settimeout(TIMEOUT)
     data = [""]  # make data mutable

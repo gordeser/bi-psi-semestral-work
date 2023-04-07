@@ -266,6 +266,35 @@ def solve_obstacle(connection, data):
     return turn_right(connection, data)
 
 
+def robot_part(connection, data):
+    coords = move_forward(connection, data)
+    print(f"POSITION: {coords}")
+    if finished(coords):
+        secret = get_secret(connection, data)
+        print(f"SECRET MESSAGE: {secret}")
+        logout(connection)
+
+    prev_pos = coords
+    curr_pos = move_forward(connection, data)
+    print(f"POSITION: {curr_pos}")
+    while curr_pos != [0, 0]:
+        if prev_pos == curr_pos:
+            print(f"GOT INTO OBSTACLE with {prev_pos} and {curr_pos}")
+            tmp = solve_obstacle(connection, data)
+            prev_pos = curr_pos
+            curr_pos = tmp
+        else:
+            tmp = next_move(connection, data, prev_pos, curr_pos)
+
+            prev_pos = curr_pos
+            curr_pos = tmp
+            print(f"POSITION: {curr_pos}")
+
+    secret = get_secret(connection, data)
+    print(f"SECRET MESSAGE: {secret}")
+    logout(connection)
+
+
 def handle_client(connection: socket.socket):
     connection.settimeout(TIMEOUT)
     data = [""]  # make data mutable

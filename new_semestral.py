@@ -229,6 +229,11 @@ def next_move(connection, data, prev_pos, curr_pos):
     return move_forward(connection, data)
 
 
+def get_secret(connection, data):
+    send_data(connection, Messages.SERVER_PICK_UP.value)
+    return get_data(connection, data)
+
+
 def handle_client(connection: socket.socket):
     connection.settimeout(TIMEOUT)
     data = [""]  # make data mutable

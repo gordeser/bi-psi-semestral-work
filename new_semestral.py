@@ -234,6 +234,11 @@ def get_secret(connection, data):
     return get_data(connection, data)
 
 
+def logout(connection):
+    send_data(connection, Messages.SERVER_LOGOUT.value)
+    connection.close()
+
+
 def handle_client(connection: socket.socket):
     connection.settimeout(TIMEOUT)
     data = [""]  # make data mutable

@@ -4,7 +4,10 @@ import sys
 from enum import Enum
 
 HOST = "127.0.0.1"
-PORT = int(sys.argv[1])
+try:
+    PORT = int(sys.argv[1])
+except:
+    PORT = 1234
 
 TIMEOUT = 1
 TIMEOUT_RECHARGING = 5

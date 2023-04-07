@@ -305,6 +305,8 @@ def handle_client(connection: socket.socket):
         print("CONNECTION TIMEOUT")
         connection.close()
         return False
+    except:
+        return True
     return True
 
 

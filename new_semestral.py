@@ -140,8 +140,8 @@ def get_coords(connection, data):
     return coords
 
 
-def finished(x, y):
-    return x == 0 and y == 0
+def finished(coords):
+    return coords[0] == 0 and coords[1] == 0
 
 
 def robot_part(connection, data):

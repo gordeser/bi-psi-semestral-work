@@ -103,7 +103,12 @@ def auth(connection, data):
     client_confirmation = count_client_confirmation(_hash, key_id)
     print(f"CONFIRMS: SERVER {server_confirmation} and CLIENT {client_confirmation}")
     send_data(connection, server_confirmation)  # <--- SERVER_CONFIRMATION
-    check_client_confirmation = get_data(connection, data)  # CLIENT_CONFIRMATION --->
+    check_client_confirmation = get_data(connection, data, 7)  # CLIENT_CONFIRMATION --->
+    if len(check_client_confirmation) != len(str(int(check_client_confirmation))):
+        print(f"SPACE AFTER CONFIRMATION: {check_client_confirmation}")
+        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+        connection.close()
+        return False
     print(f"CONFIRM FROM CLIENT: {check_client_confirmation} and OURS: {client_confirmation}")
     if int(client_confirmation) != int(check_client_confirmation):
         send_data(connection, Messages.SERVER_LOGIN_FAILED.value)  # <--- # SERVER_LOGIN_FAILED

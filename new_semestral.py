@@ -121,9 +121,18 @@ def auth(connection, data):
 # --------------------------------------------------
 
 def get_coords(connection, data):
-    buffer = get_data(connection, data)
+    buffer = get_data(connection, data, 12)
+    if " ".join(buffer.split()) != buffer:
+        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+        connection.close()
+        return False
+    buffer = buffer.split()
+    if '.' in buffer[1] or '.' in buffer[2]:
+        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+        connection.close()
+        return False
     coords = []
-    for coord in buffer.split():
+    for coord in buffer:
         try:
             coords.append(int(coord))
         except ValueError:

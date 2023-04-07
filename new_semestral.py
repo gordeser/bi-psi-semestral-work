@@ -79,10 +79,18 @@ def count_client_confirmation(_hash, key_id):
 
 
 def auth(connection, data):
-    username = get_data(connection, data)  # CLIENT_USERNAME --->
+    # todo: make other functions to get username, key_id, checking confirms
+    username = get_data(connection, data, 20)  # CLIENT_USERNAME --->
     print(f"USERNAME: {username}")
     send_data(connection, Messages.SERVER_KEY_REQUEST.value)  # <--- SERVER_KEY_REQUEST
-    key_id = int(get_data(connection, data))  # CLIENT_KEY_ID --->
+    key_id = get_data(connection, data, 5)
+    try:
+        key_id = int(key_id)  # CLIENT_KEY_ID --->
+    except ValueError:
+        print(f"WRONG KEY_ID: {key_id}")
+        send_data(connection, Messages.SERVER_SYNTAX_ERROR.value)
+        connection.close()
+        return False
     if not (0 <= key_id <= 4):
         send_data(connection, Messages.SERVER_KEY_OUT_OF_RANGE_ERROR.value)
         print("WRONG KEY_ID")

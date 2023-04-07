@@ -320,10 +320,10 @@ def main():
     server.listen()
     print(f"Start listening on {HOST}:{PORT}")
     while True:
-        print('-----------------------------------')
         connection, address = server.accept()
         thread = threading.Thread(target=handle_client, args=[connection])
         thread.start()
+        print('-----------------------------------')
 
 
 if __name__ == '__main__':
